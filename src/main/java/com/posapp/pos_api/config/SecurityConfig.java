@@ -15,8 +15,8 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) // Menonaktifkan CSRF
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/api/users/register", "/api/users/login").permitAll() // Allow akses ke register dan login
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/api/users/register", "/api/users/login", "/api/users/getUsers").permitAll() // Allow akses ke register dan login
                 .anyRequest().authenticated()
             );
 

@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+import java.util.List;
 
 
 
@@ -59,4 +60,10 @@ public class UserService {
         // Generate JWT Token
         return jwtUtil.generateToken(user.getEmail());
     }
+
+    // metode get users
+    public List<Users> getUsers() {
+        return userRepository.findAll(); 
+    }
+
 }
