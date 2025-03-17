@@ -7,11 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
-import java.util.List;
 
 // Import Swagger
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/api/users")
@@ -47,17 +45,5 @@ public class UserController {
         "token", jwtToken));
     }
     
-    @Operation(summary = "Mendapatkan daftar semua pengguna", description = "Hanya bisa diakses dengan token JWT.")
-    @SecurityRequirement(name = "BearerAuth")
-    @GetMapping("/getUsers")
-    public ResponseEntity<Object> getUsers() {
-        List<Users> users = userService.getUsers();
-        return ResponseEntity.ok(
-            Map.of(
-            "massage", "Success get all users",
-            "status", HttpStatus.OK.value(),
-            "Users", users)
-        );
-    }
 
 }

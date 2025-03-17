@@ -4,16 +4,18 @@ import com.posapp.pos_api.model.Users;
 import com.posapp.pos_api.repository.UserRepository;
 import com.posapp.pos_api.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-import java.util.List;
-
 
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {  // 🔹 Tambahkan ini
 
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
@@ -26,17 +28,23 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // Metode registrasi
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Users user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+
+        return User.builder()
+                .username(user.getEmail())
+                .password(user.getPassword())
+                .build();
+    }
+
     public Users registerUser(String name, String email, String password) {
-        // Cek apakah email sudah ada
         if (userRepository.findByEmail(email).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,"Email already exists!");
         }
 
-        // Hash password
         String hashedPassword = passwordEncoder.encode(password);
-
-        // Simpan pengguna baru
         Users newUser = new Users();
         newUser.setName(name);
         newUser.setEmail(email);
@@ -46,24 +54,16 @@ public class UserService {
         return newUser;
     }
 
-    // Metode login
     public String loginUser(String email, String password) {
-        // Temukan user berdasarkan email
         Users user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found!"));
 
-        // Verifikasi password
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("Invalid password!");
         }
 
-        // Generate JWT Token
         return jwtUtil.generateToken(user.getEmail());
     }
 
-    // metode get users
-    public List<Users> getUsers() {
-        return userRepository.findAll(); 
-    }
-
+   
 }
